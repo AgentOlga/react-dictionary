@@ -1,82 +1,78 @@
 import React, { useState } from "react";
+import axios from "axios";
 
-const DictionaryApp = () => {
-  const [query, setQuery] = useState("");
+export default function DictionaryApp() {
+  const [keyword, setKeyword] = useState("");
   const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
 
-  const search = async () => {
-    if (!query) return;
+  function handleResponse(response) {
+    setResult(response.data);
+  }
 
-    try {
-      const apiKey = "3t4b733c995f4o30695874253279af2f";
-      const response = await fetch(
-        `https://api.shecodes.io/dictionary/v1/define?word=${query}&key=${apiKey}`
-      );
+  function search(event) {
+    event.preventDefault();
+    const apiKey = "3t4b733c995f4o30695874253279af2f";
+    const apiUrl = `https://api.shecodes.io/dictionary/v1/define?word=${keyword}&key=${apiKey}`;
+    axios.get(apiUrl).then(handleResponse);
+  }
 
-      if (!response.ok) {
-        throw new Error("Word not found");
-      }
-
-      const data = await response.json();
-      setResult(data);
-      setError("");
-    } catch (err) {
-      setResult(null);
-      setError("Слово не найдено 😢");
-    }
-  };
+  function handleKeywordChange(event) {
+    setKeyword(event.target.value);
+  }
 
   return (
-    <div className="max-w-xl mx-auto p-6 mt-10 font-sans">
-      <h1 className="text-3xl font-bold mb-6 text-center">📖 Dictionary</h1>
+    <div className="flex flex-col items-center justify-start min-h-screen bg-violet-50 pt-12 px-4">
+      <img
+        src="https://assets.shecodes.io/images/logo.png"
+        alt="SheCodes logo"
+        className="h-10 mb-8"
+      />
 
-      <div className="flex gap-2 mb-4">
+      <form onSubmit={search} className="w-full max-w-xl mb-6">
         <input
-          type="text"
-          className="border px-4 py-2 rounded w-full"
-          placeholder="Enter a word..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && search()}
+          type="search"
+          onChange={handleKeywordChange}
+          placeholder="What word do you want to look up?"
+          className="w-full p-4 rounded-md border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500"
         />
-        <button
-          className="bg-blue-600 text-white px-4 py-2 rounded"
-          onClick={search}
-        >
-          Search
-        </button>
-      </div>
-
-      {error && <p className="text-red-500 text-center">{error}</p>}
+      </form>
 
       {result && (
-        <div className="mt-6 bg-gray-50 p-4 rounded shadow">
-          <h2 className="text-2xl font-semibold mb-2">{result.word}</h2>
+        <div className="w-full max-w-3xl bg-white rounded-md shadow-md p-6 space-y-4 text-left">
+          <h2 className="text-2xl font-bold">{result.word}</h2>
+          {result.phonetic && (
+            <p className="text-gray-500 italic">{result.phonetic}</p>
+          )}
 
           {result.meanings.map((meaning, index) => (
             <div key={index} className="mb-4">
-              <p className="text-sm italic text-gray-700 mb-1">
-                {meaning.partOfSpeech}
-              </p>
-              <ul className="list-disc list-inside text-gray-800">
-                {meaning.definitions.map((def, i) => (
-                  <li key={i}>
-                    {def.definition}
-                    {def.example && (
-                      <p className="text-sm text-gray-500">
-                        Example: "{def.example}"
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
+              <h3 className="text-lg font-semibold">{meaning.partOfSpeech}</h3>
+              <p className="text-gray-800">{meaning.definition}</p>
+              {meaning.example && (
+                <p className="text-gray-600 italic mt-1">"{meaning.example}"</p>
+              )}
+              {meaning.synonyms && meaning.synonyms.length > 0 && (
+                <p className="text-sm mt-2">
+                  <strong>Similar:</strong> {meaning.synonyms.join(", ")}
+                </p>
+              )}
             </div>
           ))}
+
+          {result.photos && (
+            <div className="grid grid-cols-3 gap-4 pt-4">
+              {result.photos.map((photo, index) => (
+                <img
+                  key={index}
+                  src={photo.src.tiny}
+                  alt="Related"
+                  className="w-full rounded-md object-cover"
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
   );
-};
-
-export default DictionaryApp;
+}
