@@ -1,12 +1,35 @@
-import React from "react";
-import DictionaryApp from "./components/DictionaryApp";
+import logo from "./logo.png";
+import "./App.css";
+import Dictionary from "./Dictionary.js";
 
-function App() {
+export default function App() {
   return (
-    <div className="min-h-screen bg-white text-gray-900">
-      <DictionaryApp />
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo img-fluid" alt="logo" />
+      </header>
+      <main>
+        <Dictionary defaultKeyword="nature" />
+      </main>
+      <footer className="App-footer">
+        Coded by{" "}
+        <a
+          href="https://www.linkedin.com/in/olga-philippova-89886b48/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Olga Phili
+        </a>{" "}
+        and is{" "}
+        <a
+          href="https://https://github.com/AgentOlga/react-dictionary"
+          target="_blank"
+          rel="noreferrer"
+        >
+          open-sourced on GitHub
+        </a>{" "}
+        💜
+      </footer>
     </div>
   );
 }
-
-export default App;
